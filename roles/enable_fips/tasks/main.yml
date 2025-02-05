@@ -1,0 +1,27 @@
+- name: RHEL 8 must implement NIST FIPS-validated cryptography to provision digital signatures, generate cryptographic hashes, and protect data requiring data-at-rest protections in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards.
+  block:
+  - name: Check to see if FIPS mode is enabled
+    ansible.builtin.command:
+      cmd: /usr/bin/fips-mode-setup --is-enabled
+    register: __check_fips_mode_status
+    failed_when: __check_fips_mode_status.rc not in [ 0, 1, 2 ]
+    changed_when: false
+  - name: Check to see if the kernel boot parameter is configured for FIPS mode
+    ansible.builtin.shell:
+      cmd: >
+        /usr/bin/grub2-editenv list | grep fips
+    register: __result_grub_fips_enabled
+    changed_when: false
+  - name: Check to see if the system is in FIPS mode
+    ansible.builtin.slurp:
+      src: /proc/sys/crypto/fips_enabled
+    register: __result_system_fips_enabled
+    changed_when: false
+  - name: Enable FIPS mode after installation (not strict FIPS-compliant)
+    ansible.builtin.command:
+      cmd: /usr/bin/fips-mode-setup --enable
+    when:
+      - __check_fips_mode_status.rc != 0
+        or "'fips=1' not in __result_grub_fips_enabled.stdout_lines"
+        or not __result_system_fips_enabled.content | b64decode | bool
+  when: manage_230223 | bool

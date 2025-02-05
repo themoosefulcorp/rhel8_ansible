@@ -1,0 +1,19 @@
+---
+- name: RHEL 8 must display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via a ssh logon.
+  block:
+  - name: Edit the "/etc/ssh/sshd_config" file to uncomment the banner keyword and configure it to point to a file that will contain the logon banner
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '(?i)^[#\s]*Banner\s*.*$'
+      line: Banner /etc/issue
+      state: present
+  - name: Replace the text in the file with the Standard Mandatory DOD Notice and Consent Banner
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/issue"
+      dest: /etc/issue
+      owner: root
+      group: root
+      mode: '0644'
+  notify: sshd_restart
+  when: manage_230225 | bool
+...

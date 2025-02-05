@@ -1,0 +1,16 @@
+---
+- name: RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a graphical user logon.
+  block:
+  - name: Check that the operating system displays the exact Standard Mandatory DoD Notice and Consent Banner text
+    ansible.builtin.find:
+      paths: /etc/dconf/db/local.d
+      contains: 'banner-message-text'
+    register: __found_dconf_banner_message
+    changed_when: false
+  - name: Configure the operating system to display the correct Standard Mandatory DoD Notice and Consent Banner before granting access to the system
+    ansible.builtin.blockinfile:
+  - name: 
+    community.general.ini_file:
+  notify: dconf_update
+  when: manage_230226 | bool
+...

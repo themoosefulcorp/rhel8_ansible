@@ -1,0 +1,13 @@
+---
+- name: RHEL 8 vendor packaged system security patches and updates must be installed and up to date.
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+  become: true
+  when: manage_230222 | bool
+
+
+
+
+
+...

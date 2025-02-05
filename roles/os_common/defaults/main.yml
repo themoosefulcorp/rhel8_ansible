@@ -1,0 +1,12 @@
+---
+# RHEL-08-010000
+manage_230221: false
+# Not worth the effort of automating
+
+# RHEL-08-010010
+manage_230222: true
+
+# RHEL-08-010030
+manage_230224: false
+# Configure during installation
+...
